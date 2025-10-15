@@ -10,23 +10,29 @@ public class GameManagerScript : MonoBehaviour
     public bool isXTurn = true;
     public List<GameObject> buttons;
     public TMP_Text turnLabel;
+    public GameObject restartButton;
+    public TMP_Text xWinsLabel;
+    public TMP_Text oWinsLabel;
+
+    private bool joever = false;
+    private int xWins = 0;
+    private int oWins = 0;
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-
+        restart();
     }
 
     public void OnCellClicked(int cellIndex)
     {
         GameObject button = buttons[cellIndex];
         TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+        if (joever)
+        {
+            print("the game is over");
+            return;
+        }
         if (label.text != "")
         {
             print("you clicked on an occupied tile");
@@ -44,15 +50,20 @@ public class GameManagerScript : MonoBehaviour
         }
         if (checkForWin(button))
         {
-            turnLabel.text = "";
+            joever = true;
             if (isXTurn)
             {
-                print("X wins");
+                turnLabel.text = "X wins";
+                xWins++;
+                xWinsLabel.text = "X - " + xWins;
             }
             else
             {
-                print("O wins");
+                turnLabel.text = "O wins";
+                oWins++;
+                oWinsLabel.text = oWins + " - O";
             }
+            restartButton.SetActive(true);
         }
         isXTurn = !isXTurn;
 
@@ -122,5 +133,21 @@ public class GameManagerScript : MonoBehaviour
         if (buttonScript.inPositiveSlash)
             win = win || checkSlash(1);
         return win;
+    }
+
+    public void restart()
+    {
+        for (int i=0; i<buttons.Count; i++)
+        {
+            GameObject button = buttons[i];
+            TMP_Text label = button.GetComponentInChildren<TMP_Text>();
+            label.text = "";
+            if (isXTurn)
+                turnLabel.text = "Turn: X";
+            else
+                turnLabel.text = "Turn: O";
+            restartButton.SetActive(false);
+            joever = false;
+        }
     }
 }
